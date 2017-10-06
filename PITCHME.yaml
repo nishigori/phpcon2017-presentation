@@ -1,0 +1,20 @@
+# black, moon, night, beige, sky, white
+theme : moon
+
+#logo : logo.png
+
+slide-number: true
+footnote : "© 2017 @_nishigori"
+
+# https://highlightjs.org/static/demo/
+highlight : Solarized Dark
+
+#autoslide : 5000
+
+loop : false
+
+# convex, concave, default, fade, none, slide, zoom
+transition : fade
+
+# enabled chart.js
+charts : false

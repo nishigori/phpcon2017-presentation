@@ -69,7 +69,7 @@ data "aws_ami" "coreos" {
 
   filter {
     name   = "name"
-    values = ["CoreOS-alpha-*"]
+    values = ["CoreOS-stable-*"]
   }
 
   filter {

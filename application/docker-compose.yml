@@ -9,6 +9,7 @@ services:
     container_name: phpcon2017-ngx
     ports:
       - 80:80
+    #mem_limit: "512m"
     volumes_from:
       - php:ro
     links:
@@ -24,6 +25,7 @@ services:
       SLIM_MODE: "development"
     ports:
       - 9000
+    #mem_limit: "512m"
     volumes:
       - ./etc/php-fpm.d/www-development.conf:/usr/local/etc/php-fpm.d/www.conf:ro
       - ./public:/var/www/public

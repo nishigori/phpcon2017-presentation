@@ -21,7 +21,7 @@ deps: $(COMPOSER) $(DOCKER_COMPOSE) docker_login composer_install ## Install dep
 clean: $(DOCKER_COMPOSE)
 	$(DOCKER_COMPOSE) down
 
-build: $(DOCKER_COMPOSE) docker_login pull ## Build container(s)
+build: $(DOCKER_COMPOSE) docker_login ## Build container(s)
 	$(DOCKER_COMPOSE) up -d --force-recreate --build --remove-orphans \
 	|| ($(DOCKER_COMPOSE) rm --force && exit 1)
 	@echo "==> Checking path of / like as smoke testing" && sleep 5; # awaiting launched

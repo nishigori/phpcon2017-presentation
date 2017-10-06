@@ -22,6 +22,9 @@ plan: init
 apply: init
 	$(TERRAFORM) $@ -state=$(TERRAFORM_STATE) -auto-approve=false
 
+destroy: init
+	$(TERRAFORM) $@ -state=$(TERRAFORM_STATE)
+
 test: ## Run tests
 	docker pull nishigori/awspec
 	docker run --rm \
