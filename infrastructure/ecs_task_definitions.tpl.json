@@ -1,0 +1,46 @@
+[
+  {
+    "name":      "nginx",
+    "image":     "${docker_image}:nginx",
+    "cpu":       512,
+    "memory":    512,
+    "portMappings": [
+      {
+        "hostPort": 0,
+        "containerPort": 80
+      }
+    ],
+    "volumesFrom": [
+      {
+        "sourceContainer": "php",
+        "readOnly": true
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group":  "${nginx_log_group}",
+        "awslogs-region": "${region}"
+      }
+    }
+  },
+
+  {
+    "name":      "php",
+    "image":     "${docker_image}:php",
+    "memory":    512,
+    "portMappings": [
+      {
+        "hostPort": 0,
+        "containerPort": 80
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group":  "${php_log_group}",
+        "awslogs-region": "${region}"
+      }
+    }
+  }
+]

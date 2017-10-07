@@ -1,10 +1,29 @@
 module "vpc" {
-  source             = "terraform-aws-modules/vpc/aws"
+  source = "git@github.com:hashicorp/best-practices?ref=abdc7d4//terraform/modules/aws/network/vpc"
 
-  name               = "phpcon2017"
-  cidr               = "10.0.0.0/16"
-  azs                = "${var.availability_zones}"
-  private_subnets    = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
-  enable_nat_gateway = true
+  cidr = "10.0.0.0/16"
+}
+
+module "public_subnet" {
+  source = "git@github.com:hashicorp/best-practices?ref=abdc7d4//terraform/modules/aws/network/public_subnet"
+
+  vpc_id = "${module.vpc.vpc_id}"
+  cidrs  = "${cidrsubnet(module.vpc.vpc_cidr, 8, 1)},${cidrsubnet(module.vpc.vpc_cidr, 8, 3)}"
+  azs    = "${join(",", var.availability_zones)}"
+}
+
+module "nat" {
+  source = "git@github.com:hashicorp/best-practices?ref=abdc7d4//terraform/modules/aws/network/nat"
+
+  azs               = "${join(",", var.availability_zones)}"
+  public_subnet_ids = "${module.public_subnet.subnet_ids}"
+}
+
+module "private_subnet" {
+  source = "git@github.com:hashicorp/best-practices?ref=abdc7d4//terraform/modules/aws/network/private_subnet"
+
+  vpc_id          = "${module.vpc.vpc_id}"
+  cidrs           = "${cidrsubnet(module.vpc.vpc_cidr, 8, 11)},${cidrsubnet(module.vpc.vpc_cidr, 8, 13)}"
+  azs             = "${join(",", var.availability_zones)}"
+  nat_gateway_ids = "${module.nat.nat_gateway_ids}"
 }

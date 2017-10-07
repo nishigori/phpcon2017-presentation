@@ -8,7 +8,7 @@ resource "aws_alb" "phpcon2017" {
   name                       = "phpcon2017"
   internal                   = false
   security_groups            = ["${aws_security_group.alb.id}"]
-  subnets                    = ["${module.vpc.public_subnets}"]
+  subnets                    = ["${split(",", module.public_subnet.subnet_ids)}"]
   enable_deletion_protection = false
   idle_timeout               = 10
 
@@ -62,7 +62,7 @@ resource "aws_alb_listener_rule" "http_canary" {
 
   condition {
     field  = "host-header"
-    values = ["test.${var.domain}"]
+    values = ["preview-${var.domain}"]
   }
 }
 
