@@ -1,0 +1,5 @@
+*.zip
+/.ssh
+.terraform
+/terraform
+/terraform.tfstate*
