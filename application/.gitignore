@@ -2,3 +2,5 @@
 /logs/*
 !/logs/README.md
 /composer.phar
+/phpunit.phar
+/docker-compose

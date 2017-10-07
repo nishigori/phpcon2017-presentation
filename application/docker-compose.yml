@@ -1,18 +1,34 @@
 version: '2'
 
-volumes:
-    logs:
-        driver: local
-
 services:
-    slim:
-        image: php:7-alpine
-        working_dir: /var/www
-        command: php -S 0.0.0.0:8080 -t public public/index.php
-        environment:
-            docker: "true"
-        ports:
-            - 8080:8080
-        volumes:
-            - .:/var/www
-            - logs:/var/www/logs
+  nginx:
+    image: 675359748603.dkr.ecr.us-west-2.amazonaws.com/phpcon2017-presentation:nginx
+    build:
+      context: .
+      dockerfile: nginx.dockerfile
+    container_name: phpcon2017-ngx
+    ports:
+      - 80:80
+    volumes_from:
+      - php:ro
+    links:
+      - php
+
+  php:
+    image: 675359748603.dkr.ecr.us-west-2.amazonaws.com/phpcon2017-presentation:php
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    container_name: phpcon2017-php
+    environment:
+      SLIM_MODE: "development"
+    ports:
+      - 9000
+    volumes:
+      - ./etc/php-fpm.d/www-development.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+      - ./public:/var/www/public
+      - ./src:/var/www/src
+      - ./templates:/var/www/templates
+      - ./vendor:/var/www/vendor
+    #  - .:/var/www/public
+    #  - logs:/var/www/logs
