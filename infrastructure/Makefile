@@ -10,7 +10,10 @@ default: init plan
 
 all: init apply test
 
-init: ~/.aws/credentials .ssh/aws-keypair $(TERRAFORM)
+clean:
+	@/bin/rm -f $(TERRAFORM_STATE).*
+
+init: ~/.aws/credentials .ssh/aws-keypair terraform.tfvars $(TERRAFORM)
 	$(TERRAFORM) init -get-plugins=true -get=true
 
 plan: init
@@ -25,6 +28,9 @@ test: ## Run tests
 	  -v ~/.aws:/root/.aws:ro \
 	  -v $(CURDIR)/spec:/awspec:ro \
 	  nishigori/awspec
+
+terraform.tfvars: terraform.tfvars.example
+	@test -f $@ || (cp $< $@ && echo "Generated $@ needs update if you want")
 
 .ssh/aws-keypair:
 	@mkdir $(@D)
