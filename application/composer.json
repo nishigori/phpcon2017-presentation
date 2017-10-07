@@ -1,14 +1,14 @@
 {
-    "name": "slim/slim-skeleton",
-    "description": "A Slim Framework skeleton application for rapid development",
-    "keywords": ["microframework", "rest", "router", "psr7"],
-    "homepage": "http://github.com/slimphp/Slim-Skeleton",
+    "name": "nishigori/phpcon2017-presentation",
+    "description": "My presentation at JAPAN PHP CONFERENCE 2017",
+    "keywords": ["phpcon2017", "demo"],
+    "homepage": "http://github.com/nishigori/phpcon2017-presentation",
     "license": "MIT",
     "authors": [
         {
-            "name": "Josh Lockhart",
-            "email": "info@joshlockhart.com",
-            "homepage": "http://www.joshlockhart.com/"
+            "name": "Takuya Nishigori",
+            "email": "nishigori.tak@gmail.com",
+            "homepage": "https://github.com/nishigori"
         }
     ],
     "require": {
