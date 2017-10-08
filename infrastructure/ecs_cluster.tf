@@ -46,7 +46,7 @@ resource "aws_launch_configuration" "phpcon2017" {
   security_groups             = ["${aws_security_group.ecs_cluster.id}"]
   key_name                    = "${aws_key_pair.phpcon2017.key_name}"
   image_id                    = "${data.aws_ami.coreos.image_id}"
-  instance_type               = "m4.large"
+  instance_type               = "m4.xlarge"
   ebs_optimized               = true
   iam_instance_profile        = "${aws_iam_instance_profile.ecs_instance.name}"
   user_data                   = "${data.template_file.ecs_cloud_config.rendered}"
