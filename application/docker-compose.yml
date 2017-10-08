@@ -30,5 +30,3 @@ services:
       - ./src:/var/www/src
       - ./templates:/var/www/templates
       - ./vendor:/var/www/vendor
-    #  - .:/var/www/public
-    #  - logs:/var/www/logs

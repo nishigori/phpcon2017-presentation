@@ -10,7 +10,7 @@ AWS_REGION  := us-west-2
 AWS_PROFILE := phpcon2017
 
 .DEFAULT_GOAL := help
-.PHONY: help deps clean build pull push run stop docker_login
+.PHONY: help deps clean build pull push run stop docker_login ecs_deploy
 
 # https://news.ycombinator.com/item?id=11195539
 help:
@@ -33,6 +33,22 @@ pull: $(DOCKER_COMPOSE) docker_login ## Pull docker image(s) to Amazon ECR Repos
 
 push: $(DOCKER_COMPOSE) docker_login ## Push docker image(s) to Amazon ECR Repository
 	$(DOCKER_COMPOSE) $@
+
+deploy: ## Deploy (rolling-update) to production
+	@$(MAKE) ecs_deploy
+
+canary_deploy: ## Deploy (rolling-update) to canary environment
+	@$(MAKE) ecs_deploy ecs_service=phpcon2017-canary
+
+ecs_deploy: ecs_cluster = phpcon2017
+ecs_deploy: ecs_service = phpcon2017
+ecs_deploy:
+	docker run --rm -it \
+	  -v ~/.aws:/root/.aws:ro \
+	  -e AWS_DEFAULT_REGION=$(AWS_REGION) \
+	  -e AWS_PROFILE=$(AWS_PROFILE) \
+	  nishigori/ecs-deploy:1.3.1 $(ecs_cluster) $(ecs_service)
+
 
 docker_login: ~/.aws/credentials ## Logged-in docker registory (amazon ecr)
 	$$(aws ecr get-login --no-include-email --registry-ids $(DOCKER_REGISTRY_ID))
