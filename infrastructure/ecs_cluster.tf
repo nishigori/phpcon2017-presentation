@@ -20,8 +20,8 @@ resource "aws_autoscaling_group" "phpcon2017" {
 
   # NOTE: this module no handled desired capacity
   #desired_capacity     = "${var.asg_desired}"
-  min_size             = "1"
-  max_size             = "4"
+  min_size             = "3"
+  max_size             = "8"
 
   vpc_zone_identifier  = ["${split(",", module.private_subnet.subnet_ids)}"]
   default_cooldown     = 150
@@ -46,7 +46,7 @@ resource "aws_launch_configuration" "phpcon2017" {
   security_groups             = ["${aws_security_group.ecs_cluster.id}"]
   key_name                    = "${aws_key_pair.phpcon2017.key_name}"
   image_id                    = "${data.aws_ami.coreos.image_id}"
-  instance_type               = "m4.xlarge"
+  instance_type               = "c4.xlarge"
   ebs_optimized               = true
   iam_instance_profile        = "${aws_iam_instance_profile.ecs_instance.name}"
   user_data                   = "${data.template_file.ecs_cloud_config.rendered}"

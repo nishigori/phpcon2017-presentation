@@ -32,7 +32,7 @@
   {
     "name":      "php",
     "image":     "${docker_image}:php",
-    "cpu":       1024,
+    "cpu":       512,
     "memory":    512,
     "portMappings": [
       {
