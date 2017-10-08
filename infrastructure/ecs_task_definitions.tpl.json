@@ -4,11 +4,15 @@
     "image":     "${docker_image}:nginx",
     "cpu":       512,
     "memory":    512,
+    "essential": true,
     "portMappings": [
       {
         "hostPort": 0,
         "containerPort": 80
       }
+    ],
+    "links": [
+      "php"
     ],
     "volumesFrom": [
       {
@@ -28,11 +32,11 @@
   {
     "name":      "php",
     "image":     "${docker_image}:php",
+    "cpu":       1024,
     "memory":    512,
     "portMappings": [
       {
-        "hostPort": 0,
-        "containerPort": 80
+        "containerPort": 9000
       }
     ],
     "logConfiguration": {

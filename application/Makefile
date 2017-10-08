@@ -6,12 +6,15 @@ DOCKER_REGISTRY_ID     := 675359748603
 DOCKER_COMPOSE_VERSION := 1.16.1
 DOCKER_COMPOSE         := ./docker-compose
 
+AWS_REGION  := us-west-2
+AWS_PROFILE := phpcon2017
+
 .DEFAULT_GOAL := help
 .PHONY: help deps clean build pull push run stop docker_login
 
 # https://news.ycombinator.com/item?id=11195539
 help:
-	@awk -F ':|##' '/^[^\t].+?:.*?##/ { printf "\033[36m%-32s\033[0m %s\n", $$1, $$NF }' $(MAKEFILE_LIST)
+	@awk -F ':|##' '/^[^\t].+?:.*?##/ { printf "\033[36m%-28s\033[0m %s\n", $$1, $$NF }' $(MAKEFILE_LIST)
 
 deps: $(COMPOSER) $(DOCKER_COMPOSE) docker_login composer_install ## Install dependencies
 
@@ -31,7 +34,11 @@ pull: $(DOCKER_COMPOSE) docker_login ## Pull docker image(s) to Amazon ECR Repos
 push: $(DOCKER_COMPOSE) docker_login ## Push docker image(s) to Amazon ECR Repository
 	$(DOCKER_COMPOSE) $@
 
-canary:
+docker_login: ~/.aws/credentials ## Logged-in docker registory (amazon ecr)
+	$$(aws ecr get-login --no-include-email --registry-ids $(DOCKER_REGISTRY_ID))
+
+test: $(PHPUNIT) ## Run the test suite
+	docker run --rm -it -v $$(pwd):/app -w /app php:7-alpine $(PHPUNIT)
 
 run: $(DOCKER_COMPOSE) ## [dev] Run container(s)
 	-$(DOCKER_COMPOSE) up --abort-on-container-exit --force-recreate
@@ -39,10 +46,7 @@ run: $(DOCKER_COMPOSE) ## [dev] Run container(s)
 stop: $(DOCKER_COMPOSE) ## [dev] Stop container(s)
 	$(DOCKER_COMPOSE) $@
 
-test: $(PHPUNIT) ## Run the test suite
-	docker run --rm -it -v $$(pwd):/app -w /app php:7-alpine $(PHPUNIT)
-
-composer_%: $(DOCKER_COMPOSER) ## Exec composer.phar (%: install, update, ...)
+composer_%: $(DOCKER_COMPOSER) ## [dev] Exec composer.phar (install, update, ...)
 	docker run --rm -it -v $$(pwd):/app -w /app php:7-alpine $(COMPOSER) $* -vvv
 
 $(PHPUNIT):
@@ -60,8 +64,28 @@ $(DOCKER_COMPOSE):
 	curl -L -o $@ https://github.com/docker/compose/releases/download/$(DOCKER_COMPOSE_VERSION)/docker-compose-$(os_type)-$$(uname -m)
 	@chmod +x $@
 
-docker_login: ~/.aws/credentials ## Logged-in docker registory (amazon ecr)
-	$$(aws ecr get-login --no-include-email --registry-ids $(DOCKER_REGISTRY_ID))
-
 ~/.aws/credentials:
 	@test -f $@ || (echo 'ERROR: Not found $@ needs your settings like `aws configure`' && exit 1)
+
+tailf_ecs_logs_php: ## [operation] Watch to logs of php containers
+	@$(MAKE) __watch_cloudwatch_log_stream__ LOG_GROUP=phpcon2017/php
+
+tailf_ecs_logs_nginx: ## [operation] Watch to logs of nginx containers
+	@$(MAKE) __watch_cloudwatch_log_stream__ LOG_GROUP=phpcon2017/nginx
+
+tailf_ecs_logs_php_canary: ## [operation] Watch to logs of php containers that is canary
+	@$(MAKE) __watch_cloudwatch_log_stream__ LOG_GROUP=phpcon2017-canary/php
+
+tailf_ecs_logs_nginx_canary: ## [operation] Watch to logs of nginx containers that is canary
+	@$(MAKE) __watch_cloudwatch_log_stream__ LOG_GROUP=phpcon2017-canary/nginx
+
+tailf_ecs_agent_logs: ## [operation] Watch to logs of ecs cluster as docker hosts
+	@$(MAKE) __watch_cloudwatch_log_stream__ LOG_GROUP=phpcon2017/ecs-agent
+
+__watch_cloudwatch_log_stream__: LOG_GROUP = phpcon2017/php
+__watch_cloudwatch_log_stream__:
+	docker run --rm -it \
+	  -v ~/.aws:/root/.aws:ro \
+	  -e AWS_DEFAULT_REGION=$(AWS_REGION) \
+	  -e AWS_PROFILE=$(AWS_PROFILE) \
+	  nishigori/awslogs get $(LOG_GROUP) -w --no-group --no-stream

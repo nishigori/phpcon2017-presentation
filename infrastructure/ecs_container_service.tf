@@ -108,3 +108,57 @@ resource "aws_cloudwatch_log_group" "ecs_php" {
   name              = "phpcon2017/php"
   retention_in_days = 3
 }
+
+// Canary Resources
+
+resource "aws_ecs_task_definition" "phpcon2017_canary" {
+  family                = "phpcon2017-canary"
+  container_definitions = "${data.template_file.ecs_task_definitions_canary.rendered}"
+}
+
+data "template_file" "ecs_task_definitions_canary" {
+  # http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html
+  template = "${file("ecs_task_definitions.tpl.json")}"
+
+  vars {
+    region          = "${var.region}"
+    docker_image    = "${aws_ecr_repository.phpcon2017.repository_url}"
+    nginx_log_group = "phpcon2017-canary/nginx"
+    php_log_group   = "phpcon2017-canary/php"
+  }
+}
+
+resource "aws_ecs_service" "phpcon2017_canary" {
+  name            = "phpcon2017-canary"
+  cluster         = "${aws_ecs_cluster.phpcon2017.id}"
+  task_definition = "${aws_ecs_task_definition.phpcon2017_canary.arn}"
+  iam_role        = "${aws_iam_role.ecs_service.arn}"
+
+  # As below is can be running in a service during a deployment
+  desired_count                      = 1
+  deployment_maximum_percent         = "200"
+  deployment_minimum_healthy_percent = "50"
+
+  placement_strategy {
+    type  = "spread" // or binpack (this module cannot specify "random"
+    field = "instanceId"
+  }
+
+  load_balancer {
+    target_group_arn = "${aws_alb_target_group.ecs_canary.arn}"
+    container_name   = "nginx"
+    container_port   = "80"
+  }
+
+  depends_on = ["aws_iam_role_policy.ecs_service"]
+}
+
+resource "aws_cloudwatch_log_group" "ecs_canary_nginx" {
+  name              = "phpcon2017-canary/nginx"
+  retention_in_days = 3
+}
+
+resource "aws_cloudwatch_log_group" "ecs_canary_php" {
+  name              = "phpcon2017-canary/php"
+  retention_in_days = 3
+}
