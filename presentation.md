@@ -412,9 +412,9 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 ![right fit](./.images/atama.jpg)
 
 ----
-# **ガッ**[^4]
+# **ガッ**[^5]
 
-[^4]: GCPがダメって言ってるんじゃないYo
+[^5]: GCPがダメって言ってるんじゃないYo
 
 ----
 ### [fit] **「…AKEでがんｂ（ｒｙ**
@@ -422,15 +422,15 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 ![right fit](./.images/atama.jpg)
 
 ----
-# **ガッ**[^4]
+# **ガッ**[^6]
 
-[^4]: AKEがダメって言ってるんじゃないYo
+[^6]: AKEがダメって言ってるんじゃないYo
 
 ----
 # Public Container Serviceは周辺技術も大事[^5]
 
 * (GCP) Load Balancer / BQ / ...
-* (AWS) S3 / ES / SNS / ...
+* (AWS) S3 / SNS / SQS / ...
 * ...
 * SLA?
 * Using Reserved Instance?
